@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always
+
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      user-service:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 6s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+  retry:
+    instances:
+      user-service:
+        maxRetryAttempts: 3
+        waitDuration: 5s
+
+  bulkhead:
+    instances:
+      user-service:
+        maxWaitDuration: 10ms
+        maxConcurrentCalls: 10
+
+  ratelimiter:
+    instances:
+      user-service:
+        limitForPeriod: 2
+        limitRefreshPeriod: 4s
+        timeoutDuration: 4s
+
+  timelimiter:
+    instances:
+      user-service:
+        cancelRunningFuture: true
+        timeoutDuration: 2s
